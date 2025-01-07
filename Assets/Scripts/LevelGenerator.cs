@@ -14,32 +14,41 @@ public class LevelGenerator : MonoBehaviour
 
     void Start()
     {
-        GenerateChunks();
+        GenerateStartingChunks();
     }
 
-    private void GenerateChunks()
+    private void GenerateStartingChunks()
     {
         for (int i = 0; i < startingChunksAmount; i++)
         {
-            float spawnPositionZ = CalculateSpawnPositionZ(i);
-
-            Vector3 chunkSpawnPosition = new Vector3(transform.position.x, transform.position.y, spawnPositionZ);
-            GameObject chunk = Instantiate(chunkPrefab, chunkSpawnPosition, Quaternion.identity, chunkParent);
-            chunks.Add(chunk);
+            SpawnChunk();
         }
     }
 
-    private float CalculateSpawnPositionZ(int i)
+    private void SpawnChunk()
+    {
+        float spawnPositionZ = CalculateSpawnPositionZ();
+
+        Vector3 chunkSpawnPosition = new Vector3(transform.position.x, transform.position.y, spawnPositionZ);
+       
+        GameObject chunk = ObjectPooler.SharedInstance.GetPooledObject("Chunk", new Vector3(transform.position.x, transform.position.y, spawnPositionZ), Quaternion.identity);
+        
+        chunk.SetActive(true);
+        chunks.Add(chunk);
+        chunk.transform.SetParent(chunkParent);
+    }
+
+    private float CalculateSpawnPositionZ()
     {
         float spawnPositionZ;
 
-        if (i == 0)
+        if (chunks.Count == 0)
         {
             spawnPositionZ = transform.position.z;
         }
         else
         {
-            spawnPositionZ = transform.position.z + (i * chunkLength);
+            spawnPositionZ = chunks[chunks.Count - 1].transform.position.z + chunkLength;
         }
 
         return spawnPositionZ;
@@ -55,13 +64,12 @@ public class LevelGenerator : MonoBehaviour
               
             if (chunk.transform.position.z <= Camera.main.transform.position.z - chunkLength)
             {
-                    chunks.Remove(chunk);
-                    Destroy(chunk);
+               chunks.Remove(chunk);
+               ObjectPooler.SharedInstance.ReturnToPool("Chunk", chunk);
+               SpawnChunk();
+                    
             }
-            
-           
-
-           
+                  
         }
 
     }
