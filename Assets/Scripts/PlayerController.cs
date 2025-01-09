@@ -10,28 +10,26 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private float xMinClamp = -41.5f;
     [SerializeField] private float xMaxClamp =  47.1f;
-    [SerializeField] private float maxJumpHeight = 3f;
-    [SerializeField] private float gravity = -9.8f;
+    [SerializeField] private float gravityScale = 5f;
+    [SerializeField] private static float globalGravity = -9.81f;
 
+ 
 
     private Rigidbody rb;
 
-    private float verticalVelocity = 0f; // Custom vertical velocity
-
-
-  
-    private Vector2 movement;
    
+    private Vector2 movement;
 
+    private float velocity;
     private bool isGrounded = true;
-  
 
+  
    
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        maxJumpHeight = transform.position.y + maxJumpHeight;
+     
     }
     public void MoveInput(InputAction.CallbackContext context)
     {
@@ -46,7 +44,7 @@ public class PlayerController : MonoBehaviour
         {
 
             isGrounded = false;
-            StartCoroutine(ProcessJump());
+            
            
             Debug.Log("Jump executed!");
         }
@@ -55,31 +53,6 @@ public class PlayerController : MonoBehaviour
        
     }
 
-    IEnumerator ProcessJump()
-    {
-        verticalVelocity = jumpForce;
-        // Simulate jump arc until peak height is reached
-        while (verticalVelocity > 0 || !isGrounded)
-        {
-
-             verticalVelocity += gravity * Time.deltaTime; // Apply custom gravity
-           
-          
-           
-            transform.Translate(new Vector3(0, verticalVelocity * Time.deltaTime, 0));
-
-            if (IsGrounded() && verticalVelocity < 0)
-            {
-                verticalVelocity = 0f; // Reset velocity when landing
-                break;
-            }
-
-            yield return null;
-        }
-
-        
-
-    }
     
     private bool IsGrounded()
     {
@@ -122,6 +95,22 @@ public class PlayerController : MonoBehaviour
     {
         // Update grounded state
         isGrounded = IsGrounded();
+        velocity += globalGravity * gravityScale * Time.deltaTime;
+
+        if (isGrounded)
+        {
+            velocity = 0f;
+        }
+
+         if (Input.GetKeyDown(KeyCode.Space))
+            {
+                velocity = jumpForce;
+
+            }
+            
+        
+        transform.Translate(Vector3.up * velocity * Time.deltaTime);
+
     }
 
     private void FixedUpdate()
