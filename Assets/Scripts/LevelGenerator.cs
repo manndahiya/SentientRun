@@ -28,7 +28,7 @@ public class LevelGenerator : MonoBehaviour
     private void SpawnChunk()
     {
         float spawnPositionZ = CalculateSpawnPositionZ();
-
+        
         Vector3 chunkSpawnPosition = new Vector3(transform.position.x, transform.position.y, spawnPositionZ);
        
         GameObject chunk = ObjectPooler.SharedInstance.GetPooledObject("Chunk", new Vector3(transform.position.x, transform.position.y, spawnPositionZ), Quaternion.identity);
