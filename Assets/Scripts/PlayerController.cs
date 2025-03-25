@@ -14,7 +14,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float gravity = -20f;
     [SerializeField] private float playerFallTimer = 0f;
     [SerializeField] private float groundCheckDistance = 0.1f;
-    [SerializeField] private float sphereCastRadius = 0.2f;
+    
 
     private PlayerControls inputActions;
 
@@ -50,6 +50,7 @@ public class PlayerController : MonoBehaviour
         {
             
             velocity.y = jumpForce;
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
     }
 
@@ -58,7 +59,7 @@ public class PlayerController : MonoBehaviour
     {
 
         Vector3 rayOrigin = transform.position + Vector3.up * 0.1f;
-        float rayLength = 1f;
+        float rayLength = 2f;
         Debug.DrawRay(rayOrigin, Vector3.down * rayLength, Color.red);
 
         if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, rayLength, groundLayer))
